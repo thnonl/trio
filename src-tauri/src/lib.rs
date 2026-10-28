@@ -203,20 +203,6 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
-            commands::get_config,
-            commands::get_status,
-            commands::set_enabled,
-            commands::set_gesture_param,
-            commands::set_gesture_params,
-            commands::reset_gesture_params,
-            commands::set_action,
-            commands::open_accessibility_settings,
-            commands::request_permission,
-            commands::restart_listener,
-            commands::retry_listener,
-            commands::quit,
-        ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 // Lead ruling: closing hides the window; Quit / ⌘Q is the only
@@ -257,8 +243,10 @@ pub fn run() {
 /// macOS: a Dock click with no visible window re-shows the main window.
 #[cfg(target_os = "macos")]
 fn handle_run_event(app: &AppHandle, event: tauri::RunEvent) {
+    // `Reopen` is #[non_exhaustive]: the `..` is required to compile.
     if let tauri::RunEvent::Reopen {
         has_visible_windows,
+        ..
     } = event
     {
         if !has_visible_windows {
