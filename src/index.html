@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <span class="app-glyph" aria-hidden="true"><i></i><i></i><i></i></span>
+        <div class="header-text">
+          <h1>Trio</h1>
+          <p class="subtitle">Three-finger tap &rarr; middle click</p>
+        </div>
+        <div class="header-side">
+          <span id="status-pill" class="pill" data-state="starting">
+            <span class="pill-dot" aria-hidden="true"></span>
+            <span id="pill-text">Starting&hellip;</span>
+          </span>
+        </div>
+      </header>
+
+      <div class="banner-slot">
+        <div id="error-banner" class="banner banner--danger" role="alert" hidden>
+          <svg class="banner-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M8 4.5v4.2M8 11.2v.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          <div class="banner-copy">
+            <strong>Trackpad listener unavailable</strong>
+            <span id="error-text" title=""></span>
+          </div>
+          <button id="retry" class="btn btn--secondary" type="button">Retry</button>
+        </div>
+
+        <div id="permission-banner" class="banner banner--warning" role="status" hidden>
+          <svg class="banner-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+            <path
+              d="M8 1.8 15 14H1L8 1.8Z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linejoin="round"
+            />
+            <path d="M8 6v3.6M8 11.6v.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+          <div class="banner-copy">
+            <strong>Accessibility access needed</strong>
+            <span>Trio needs it to send middle clicks.</span>
+          </div>
+          <div class="banner-actions">
+            <button id="open-settings" class="btn btn--primary" type="button">Open Settings</button>
+            <button id="check-again" class="btn btn--secondary" type="button">Check again</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="card" aria-label="Trio settings">
+        <div class="row row--toggle">
+          <div class="row-copy">
+            <span id="toggle-label" class="row-label">Enable Trio</span>
+            <span id="toggle-caption" class="row-caption">
+              Tap with three fingers anywhere on the trackpad.
+            </span>
+          </div>
+          <button
+            id="toggle"
+            class="switch"
+            type="button"
+            role="switch"
+            aria-checked="true"
+            aria-labelledby="toggle-label"
+          >
+            <span class="switch-track" aria-hidden="true">
+              <span class="switch-thumb"></span>
+            </span>
+          </button>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="row row--gesture">
+          <div class="gesture-left">
+            <span class="chip">
+              <span class="chip-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              3 fingers
+            </span>
+            <span class="gesture-arrow" aria-hidden="true">&rarr;</span>
+            <label class="sr-only" for="action">Action for 3-finger tap</label>
+            <select id="action" class="select">
+              <option value="middle_click" selected>Middle click</option>
+              <option value="left_click" disabled>Left click &mdash; soon</option>
+              <option value="right_click" disabled>Right click &mdash; soon</option>
+              <option value="mission_control" disabled>Mission Control &mdash; soon</option>
+            </select>
+          </div>
+          <p class="gesture-caption">Quick tap, then lift</p>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="tune">
+          <h3 class="tune-title">Fine-tuning</h3>
+
+          <div class="sliders">
+            <div class="slider">
+              <div class="slider-head">
+                <label for="duration">Tap window</label>
+                <output id="duration-value" for="duration">400 ms</output>
+              </div>
+              <input
+                id="duration"
+                type="range"
+                min="150"
+                max="800"
+                step="10"
+                value="400"
+                aria-valuetext="400 ms"
+              />
+            </div>
+
+            <div class="slider">
+              <div class="slider-head">
+                <label for="movement">Movement tolerance</label>
+                <output id="movement-value" for="movement">8%</output>
+              </div>
+              <input
+                id="movement"
+                type="range"
+                min="0.02"
+                max="0.2"
+                step="0.01"
+                value="0.08"
+                aria-valuetext="8%"
+              />
+            </div>
+          </div>
+
+          <!-- After the sliders in DOM order so Tab reaches them first. -->
+          <button id="reset" class="link-btn" type="button">Reset to defaults</button>
+        </div>
+      </section>
+
+      <div class="spacer" aria-hidden="true"></div>
+
+      <footer class="footer">
+        <span>Trio 0.1.0</span>
+        <span id="toast" class="toast" role="status" aria-live="polite"></span>
+        <button id="quit" class="btn btn--ghost" type="button">Quit</button>
+      </footer>
+    </main>
+
+    <script src="main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+[package]
+name = "trio"
+version = "0.1.0"
+description = "3-finger tap to middle click for macOS"
+authors = ["Trio"]
+edition = "2021"
+rust-version = "1.77"
+default-run = "trio"
+
+[lib]
+name = "trio_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+# Deliberately tiny: no platform crates at all. Every macOS framework symbol is
+# resolved at runtime with dlopen/dlsym (see src/platform/macos.rs).
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]

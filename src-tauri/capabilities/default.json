@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Core permissions for the Trio main window. The UI only needs to invoke Trio's own commands and listen to its own events.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}
