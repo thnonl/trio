@@ -1,7 +1,7 @@
 name: macOS build
 
-# Builds an unsigned, ad-hoc-signed .app for both Mac architectures without a Mac.
-# Trigger manually, or on a tag like v0.1.0.
+# Builds unsigned, ad-hoc-signed .app bundles for both Mac architectures
+# without owning a Mac. Trigger manually, or push a tag like v0.1.0.
 on:
   workflow_dispatch:
   push:
@@ -11,15 +11,19 @@ on:
 jobs:
   build:
     name: build (${{ matrix.arch }})
-    runs-on: ${{ matrix.runner }}
+    # macos-14 is Apple Silicon; the Intel slice is cross-compiled on it,
+    # because GitHub's Intel runners (macos-13) are being retired.
+    runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
         include:
-          - runner: macos-14 # Apple Silicon
-            arch: aarch64
-          - runner: macos-13 # Intel
-            arch: x86_64
+          - arch: aarch64
+            rust_target: aarch64-apple-darwin
+            native: true
+          - arch: x86_64
+            rust_target: x86_64-apple-darwin
+            native: false
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +31,7 @@ jobs:
         run: |
           rustup update --no-self-update stable
           rustup default stable
+          rustup target add ${{ matrix.rust_target }}
           rustc --version
           cargo --version
 
@@ -47,20 +52,30 @@ jobs:
         run: cargo test --manifest-path src-tauri/Cargo.toml
 
       - name: Build .app
-        run: cargo tauri build --bundles app
+        run: |
+          if [ "${{ matrix.native }}" = "true" ]; then
+            cargo tauri build --bundles app
+          else
+            cargo tauri build --bundles app --target ${{ matrix.rust_target }}
+          fi
 
       - name: Ad-hoc sign
         run: |
-          APP="src-tauri/target/release/bundle/macos/Trio.app"
+          if [ "${{ matrix.native }}" = "true" ]; then
+            APP="src-tauri/target/release/bundle/macos/Trio.app"
+          else
+            APP="src-tauri/target/${{ matrix.rust_target }}/release/bundle/macos/Trio.app"
+          fi
           codesign --force --deep --sign - "$APP"
           codesign --verify --deep --strict --verbose=2 "$APP"
+          echo "APP=$APP" >> "$GITHUB_ENV"
 
       - name: Package
         run: |
           VERSION=$(python3 -c 'import json;print(json.load(open("src-tauri/tauri.conf.json"))["version"])')
           mkdir -p dist
           ZIP="dist/Trio-${VERSION}-macos-${{ matrix.arch }}.zip"
-          ditto -c -k --keepParent "src-tauri/target/release/bundle/macos/Trio.app" "$ZIP"
+          ditto -c -k --keepParent "$APP" "$ZIP"
           shasum -a 256 "$ZIP" | tee "$ZIP.sha256"
 
       - uses: actions/upload-artifact@v4
